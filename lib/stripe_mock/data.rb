@@ -1118,6 +1118,17 @@ module StripeMock
       }.merge(params)
     end
 
+    def self.mock_usage_record(params = {})
+      uid = params[:id] || 'test_ur_default'
+      {
+        id: uid,
+        object: 'usage_record',
+        livemode: false,
+        created: 1504716183,
+        subscription_item: 'test_txn_default'
+      }.merge(params)
+    end
+
     def self.mock_ephemeral_key(**params)
       created = Time.now.to_i
       expires = created + 34_000

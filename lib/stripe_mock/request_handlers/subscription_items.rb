@@ -6,6 +6,7 @@ module StripeMock
         klass.add_handler 'get /v1/subscription_items', :retrieve_subscription_items
         klass.add_handler 'post /v1/subscription_items/([^/]*)', :update_subscription_item
         klass.add_handler 'post /v1/subscription_items', :create_subscription_items
+        klass.add_handler 'post /v1/subscription_items/([^/]*)/usage_records', :create_usage_record
       end
 
       def retrieve_subscription_items(route, method_url, params, headers)
@@ -13,7 +14,7 @@ module StripeMock
 
         require_param(:subscription) unless params[:subscription]
 
-        Data.mock_list_object(subscriptions_items, params)
+        Data.mock_list_object(subscriptions_items.clone.values, params)
       end
 
       def create_subscription_items(route, method_url, params, headers)
@@ -30,6 +31,14 @@ module StripeMock
 
         subscription_item = assert_existence :subscription_item, $1, subscriptions_items[$1]
         subscription_item.merge!(params.merge(plan: plans[params[:plan]]))
+      end
+
+      def create_usage_record(route, method_url, params, headers)
+        params[:id] ||= new_id('ur')
+        route =~ method_url
+
+        subscription_item = assert_existence :subscription_item, $1, subscriptions_items[$1]
+        usage_records[params[:id]] = Data.mock_usage_record(params.merge(subscription_item: subscription_item[:id]))
       end
     end
   end
